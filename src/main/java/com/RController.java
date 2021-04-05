@@ -2,16 +2,14 @@ package com;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
+import javax.servlet.ServletContext;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 
 @RestController
@@ -57,13 +55,15 @@ public class RController {
         return img;
     }
     @GetMapping(value = "/eh/{filename}")
-    public @ResponseBody BufferedImage getImage(@PathVariable("filename") String filename) throws Exception {
+    public @ResponseBody byte[] getImage(@PathVariable("filename") String filename) throws Exception {
         System.out.println(filename);
         filename = "c:\\FilesForJava\\21.jpg";
-        BufferedImage in = displayImageContent(filename); //getResourceAsStream("c:\\FilesForJava\\Text.txt");
+        InputStream in = getClass().getResourceAsStream("/Files/21.jpg");//displayImageContent(filename);
+        //URL url = getClass().getResource("/Files/21.jpg");
+        //InputStream in = url.openStream();
         System.out.println(in);
-       // return IOUtils.toByteArray(in);
-        return in;
+        return IOUtils.toByteArray(in);
+       // return in;
     }
     @GetMapping("/write/{filename}")
     private ResponseEntity<?> AddInformationToFile(@PathVariable("filename") String filename, @RequestParam("text") String text) throws Exception
