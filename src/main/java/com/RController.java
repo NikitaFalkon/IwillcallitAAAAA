@@ -1,96 +1,46 @@
 package com;
 
-import org.apache.commons.io.IOUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
-import javax.imageio.ImageIO;
-import javax.servlet.ServletContext;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.URL;
+import javax.activation.MimetypesFileTypeMap;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 
 @RestController
 public class RController {
-//    private StorageService storageService;
-/*
-    @Autowired
-    public RController(StorageService storageService) {
-        this.storageService = storageService;
-    }*/
-
-    /*@GetMapping("/{filename}")
-    private byte[] displayFileContent(@PathVariable("filename") String filename) throws Exception 
-        {
-            byte[] buffer = new byte[0];
-            try(FileInputStream fin=new FileInputStream("c:\\FilesForJava\\" + filename))
-                {
-                    buffer = new byte[fin.available()];
-                    fin.read(buffer, 0, buffer.length);
-                }
-                catch(IOException ex){
-
-                    System.out.println(ex.getMessage());
-                }
-            return buffer;
-        }*/
-    @GetMapping("/{filename}")
-    private byte[] displayFileContent(@PathVariable("filename") String filename) throws Exception
-    {
-        return Files.readAllBytes(new File("c:\\FilesForJava\\" + filename).toPath());
-    }
-    @GetMapping("/image/{filename}")
-    private BufferedImage displayImageContent(@PathVariable("filename") String filename) throws Exception
-    {
-        /*ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
-        BufferedImage image = ImageIO.read(new File("c:\\FilesForJava\\" + filename));
-        return image;*/
-        BufferedImage img = null;
-        try {
-            img = ImageIO.read(new File("c:\\FilesForJava\\" + filename));
-        } catch (IOException e) {
+    @GetMapping(value = "/{file}")
+    public RedirectView Fil(@PathVariable("file") String filename) throws IOException {
+        MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
+        String mimeType = mimeTypesMap.getContentType(filename);
+        System.out.println(mimeType);
+        switch (mimeType) {
+            case ("application/octet-stream") :
+                return new RedirectView("/pdf/{file}");
+            case ("image/jpeg"):
+                return new RedirectView("/jpeg/{file}");
+            case ("text/plain"):
+                return new RedirectView("/txt/{file}");
+            default:
+            return null;
         }
-        return img;
     }
-    @GetMapping(value = "/eh/{filename}")
-    public @ResponseBody byte[] getImage(@PathVariable("filename") String filename) throws Exception {
-        System.out.println(filename);
-        filename = "c:\\FilesForJava\\21.jpg";
-        InputStream in = getClass().getResourceAsStream("/Files/21.jpg");//displayImageContent(filename);
-        //URL url = getClass().getResource("/Files/21.jpg");
-        //InputStream in = url.openStream();
-        System.out.println(in);
-        return IOUtils.toByteArray(in);
-       // return in;
+    @GetMapping(value = "/pdf/{file}", produces = { MediaType.APPLICATION_PDF_VALUE })
+    public byte[] getPDF(@PathVariable("file") String file) throws IOException {
+        return Files.readAllBytes(new File("c:\\FilesForJava\\"  + file).toPath());
     }
-    @GetMapping("/write/{filename}")
-    private ResponseEntity<?> AddInformationToFile(@PathVariable("filename") String filename, @RequestParam("text") String text) throws Exception
-    {
-
-        try(FileOutputStream fos=new FileOutputStream("c:\\FilesForJava\\" + filename))
-        {
-            byte[] buffer = text.getBytes();
-
-            fos.write(buffer, 0, buffer.length);
-        }
-        catch(IOException ex){
-
-            System.out.println(ex.getMessage());
-        }
-        boolean wr=true;
-        return wr
-                ?new ResponseEntity<>(HttpStatus.OK)
-                :new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-
+    @GetMapping(value = "/jpeg/{file}", produces = { MediaType.IMAGE_JPEG_VALUE })
+    public byte[] getJPEG(@PathVariable("file") String file) throws IOException {
+        return Files.readAllBytes(new File("c:\\FilesForJava\\"  + file).toPath());
     }
-/*    @GetMapping("/upload/{filename}")
-    @ResponseBody
-    public Resource serveFile(@PathVariable String filename) {
+    @GetMapping(value = "/txt/{file}")
+    public byte[] getTXT(@PathVariable("file") String file) throws IOException {
+        return Files.readAllBytes(new File("c:\\FilesForJava\\"  + file).toPath());
+    }
 
-        Resource file = storageService.loadAsResource("c:\\FilesForJava\\" + filename);
-        return file;
-    }*/
 
 }
