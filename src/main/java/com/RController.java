@@ -24,8 +24,6 @@ public class RController {
         System.out.println(mimeTypes);*/
         File file = new File("c:\\FilesForJava\\"+filename);
         String mimeType = Magic.getMagicMatch(file, false).getMimeType();
-        System.out.println(mimeType);
-        System.out.println(mimeType);
         switch (mimeType) {
             case ("application/pdf") :
                 return new RedirectView("/pdf/{file}");
@@ -34,7 +32,7 @@ public class RController {
             case ("text/plain"):
                 return new RedirectView("/txt/{file}");
             case ("application/json"):
-                return new RedirectView("/html/{file}");
+                return new RedirectView("/json/{file}");
             case ("text/xml"):
                 return new RedirectView("/xml/{file}");
             default:
@@ -57,7 +55,7 @@ public class RController {
     public byte[] getJSON(@PathVariable("file") String file) throws IOException {
         return Files.readAllBytes(new File("c:\\FilesForJava\\"  + file).toPath());
     }
-    @GetMapping(value = "/json/{file}", produces = { MediaType.TEXT_XML_VALUE })
+    @GetMapping(value = "/xml/{file}", produces = { MediaType.TEXT_XML_VALUE })
     public byte[] getXML(@PathVariable("file") String file) throws IOException {
         return Files.readAllBytes(new File("c:\\FilesForJava\\"  + file).toPath());
     }
